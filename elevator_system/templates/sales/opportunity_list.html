@@ -1,0 +1,52 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}商机管理 - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4"><i class="bi bi-graph-up-arrow"></i> 商机管理（销售管道）</h1>
+
+<div class="row g-3 mb-4">
+    {% for code, name in stage_choices %}
+    <div class="col-md-3 col-lg-2">
+        <div class="card text-center {% if request.GET.stage == code %}border-primary{% endif %}">
+            <div class="card-body py-2">
+                <h6>{{ name }}</h6>
+                <span class="fs-4">{{ opportunities_list|length }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>商机名称</th>
+                <th>客户</th>
+                <th>阶段</th>
+                <th>预计金额</th>
+                <th>概率</th>
+                <th>负责人</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for opp in opportunities %}
+            <tr>
+                <td>{{ opp.title }}</td>
+                <td>{{ opp.customer.company_name }}</td>
+                <td><span class="badge bg-primary">{{ opp.get_stage_display }}</span></td>
+                <td>{{ opp.expected_amount|default:"-" }}</td>
+                <td>{{ opp.probability }}%</td>
+                <td>{{ opp.assigned_to|default:"-" }}</td>
+                <td>{{ opp.created_at|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center py-4 text-muted">暂无商机数据</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

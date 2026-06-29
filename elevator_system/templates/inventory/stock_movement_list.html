@@ -1,0 +1,28 @@
+﻿{% extends "base.html" %}
+{% block title %}库存流水 - {{ block.super }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4"><i class="bi bi-arrow-left-right"></i> 库存流水</h1>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr><th>物料</th><th>类型</th><th>数量</th><th>操作前</th><th>操作后</th><th>关联单号</th><th>操作人</th><th>时间</th></tr>
+        </thead>
+        <tbody>
+            {% for m in movements %}
+            <tr>
+                <td>{{ m.item.name }}</td>
+                <td><span class="badge bg-info">{{ m.get_movement_type_display }}</span></td>
+                <td>{{ m.quantity }}</td>
+                <td>{{ m.quantity_before }}</td>
+                <td>{{ m.quantity_after }}</td>
+                <td>{{ m.reference_number|default:"-" }}</td>
+                <td>{{ m.operator|default:"-" }}</td>
+                <td>{{ m.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center py-4 text-muted">暂无流水记录</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

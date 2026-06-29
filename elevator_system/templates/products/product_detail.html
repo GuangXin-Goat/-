@@ -1,0 +1,143 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'products:list' %}">产品中心</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'products:list' %}?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+        <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-6">
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner rounded shadow-sm">
+                {% if product.thumbnail %}
+                <div class="carousel-item active">
+                    <img src="{{ product.thumbnail.url }}" class="d-block w-100" alt="{{ product.name }}" style="height: 400px; object-fit: cover;">
+                </div>
+                {% endif %}
+                {% for img in product.images.all %}
+                <div class="carousel-item {% if not product.thumbnail and forloop.first %}active{% endif %}">
+                    <img src="{{ img.image.url }}" class="d-block w-100" alt="{{ img.caption }}" style="height: 400px; object-fit: cover;">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mt-2">
+            <a href="{% url 'products:compare' %}?ids={{ product.id }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left-right"></i> 加入对比
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h2>{{ product.name }}</h2>
+        <p class="text-muted">型号：{{ product.model_number }}</p>
+        <span class="badge bg-info">{{ product.get_lift_type_display }}</span>
+        {% if product.energy_rating %}
+        <span class="badge bg-success">能效 {{ product.energy_rating }}</span>
+        {% endif %}
+
+        <hr>
+        <p>{{ product.summary }}</p>
+
+        {% if product.technical_specs %}
+        <h5 class="mt-4">技术参数</h5>
+        <table class="table table-striped">
+            <tbody>
+                {% for key, value in product.technical_specs.items %}
+                <tr>
+                    <th style="width: 40%">{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <div class="row mt-4">
+            <div class="col-6">
+                <strong>额定速度：</strong><br>
+                <span class="fs-5">{{ product.rated_speed }} m/s</span>
+            </div>
+            <div class="col-6">
+                <strong>额定载重：</strong><br>
+                <span class="fs-5">{{ product.rated_capacity }} kg</span>
+            </div>
+            <div class="col-6 mt-3">
+                <strong>最大层站数：</strong><br>
+                <span>{{ product.max_floors }} 站</span>
+            </div>
+            <div class="col-6 mt-3">
+                <strong>最大乘员数：</strong><br>
+                <span>{{ product.max_passengers }} 人</span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{% url 'admin:index' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-envelope"></i> 获取报价
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 配件列表 -->
+{% if product.accessories.exists %}
+<div class="mt-5">
+    <h4>可选配件</h4>
+    <div class="row g-3 mt-2">
+        {% for acc in product.accessories.all %}
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6>{{ acc.name }}</h6>
+                    <p class="small text-muted">{{ acc.description }}</p>
+                    <p class="text-primary fw-bold">{{ acc.price }} 元</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- 产品描述 -->
+{% if product.description %}
+<div class="mt-5">
+    <h4>产品详情</h4>
+    <div class="card">
+        <div class="card-body">
+            {{ product.description|linebreaks }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 相关产品 -->
+{% if related_products %}
+<div class="mt-5">
+    <h4>相关产品</h4>
+    <div class="row g-3 mt-2">
+        {% for rp in related_products %}
+        <div class="col-md-3">
+            <div class="card h-100">
+                {% if rp.thumbnail %}
+                <img src="{{ rp.thumbnail.url }}" class="card-img-top" alt="{{ rp.name }}" style="height: 150px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ rp.name }}</h6>
+                    <a href="{{ rp.get_absolute_url }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+﻿{% extends "base.html" %}
+{% block title %}库存分析 - {{ block.super }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4"><i class="bi bi-box"></i> 库存数据分析</h1>
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">库存物料总数</h6>
+                <h3 class="text-primary">{{ total_items }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">库存资金占用</h6>
+                <h3 class="text-info">{{ total_stock_value|floatformat:0 }} 元</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">低库存预警</h6>
+                <h3 class="text-danger">{{ low_stock_items|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header"><h5 class="mb-0">低库存物料</h5></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>名称</th><th>库存</th><th>最低</th></tr></thead>
+                    <tbody>
+                        {% for item in low_stock_items %}
+                        <tr><td>{{ item.name }}</td><td class="text-danger">{{ item.quantity }}</td><td>{{ item.min_quantity }}</td></tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-muted">无低库存物料</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header"><h5 class="mb-0">近期出入库</h5></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>物料</th><th>类型</th><th>数量</th><th>时间</th></tr></thead>
+                    <tbody>
+                        {% for m in recent_movements %}
+                        <tr>
+                            <td>{{ m.item.name }}</td>
+                            <td><span class="badge bg-info">{{ m.get_movement_type_display }}</span></td>
+                            <td>{{ m.quantity }}</td>
+                            <td>{{ m.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-muted">暂无记录</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

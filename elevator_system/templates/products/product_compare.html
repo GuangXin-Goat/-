@@ -1,0 +1,88 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}产品对比 - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-4"><i class="bi bi-arrow-left-right"></i> 产品对比</h1>
+
+{% if products %}
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 150px;">参数</th>
+                {% for product in products %}
+                <th class="text-center">{{ product.name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>型号</strong></td>
+                {% for product in products %}
+                <td class="text-center">{{ product.model_number }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>类型</strong></td>
+                {% for product in products %}
+                <td class="text-center">{{ product.get_lift_type_display }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>缩略图</strong></td>
+                {% for product in products %}
+                <td class="text-center">
+                    {% if product.thumbnail %}
+                    <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" style="height: 80px;">
+                    {% else %}
+                    <i class="bi bi-building" style="font-size: 2rem; color: #ccc;"></i>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% for label, field in compare_fields %}
+            <tr>
+                <td><strong>{{ label }}</strong></td>
+                {% for product in products %}
+                    {% with value=product|get_attr:field %}
+                    <td class="text-center">{{ value|default:"-" }}</td>
+                    {% endwith %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <td><strong>能效等级</strong></td>
+                {% for product in products %}
+                <td class="text-center">{{ product.energy_rating|default:"-" }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+                {% for product in products %}
+                <td class="text-center">
+                    <a href="{{ product.get_absolute_url }}" class="btn btn-sm btn-primary">查看详情</a>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% else %}
+<form method="get" class="card p-4">
+    <p class="text-muted">请选择需要对比的产品（最多3款）：</p>
+    <div class="row">
+        {% for product in view.products.all %}
+        <div class="col-md-4 mb-2">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="ids" value="{{ product.id }}" id="p{{ product.id }}">
+                <label class="form-check-label" for="p{{ product.id }}">{{ product.name }} ({{ product.model_number }})</label>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">开始对比</button>
+</form>
+{% endif %}
+{% endblock %}

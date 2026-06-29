@@ -1,0 +1,104 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}产品中心 - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">产品中心</h1>
+    <a href="{% url 'products:compare' %}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left-right"></i> 产品对比
+    </a>
+</div>
+
+<!-- 筛选栏 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control" placeholder="搜索产品名称/型号..." value="{{ request.GET.q }}">
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">全部分类</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="lift_type" class="form-select">
+                    <option value="">全部类型</option>
+                    {% for code, name in lift_types %}
+                    <option value="{{ code }}" {% if request.GET.lift_type == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> 筛选</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 产品网格 -->
+{% if products %}
+<div class="row g-4">
+    {% for product in products %}
+    <div class="col-md-4 col-lg-3">
+        <div class="card h-100 shadow-sm product-card">
+            {% if product.thumbnail %}
+            <img src="{{ product.thumbnail.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <i class="bi bi-building" style="font-size: 3rem; color: #ccc;"></i>
+            </div>
+            {% endif %}
+            {% if product.is_featured %}
+            <span class="badge bg-danger position-absolute top-0 end-0 m-2">推荐</span>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="text-muted small">{{ product.model_number }}</p>
+                <p class="card-text small">{{ product.summary|truncatewords:20 }}</p>
+                <ul class="list-unstyled small text-muted">
+                    <li><i class="bi bi-speedometer2"></i> {{ product.rated_speed }} m/s</li>
+                    <li><i class="bi bi-weight"></i> {{ product.rated_capacity }} kg</li>
+                </ul>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <div class="d-grid gap-2">
+                    <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary">查看详情</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+        {% endif %}
+        {% for i in paginator.page_range %}
+        <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+    <p class="text-muted mt-3">暂无产品数据</p>
+</div>
+{% endif %}
+{% endblock %}

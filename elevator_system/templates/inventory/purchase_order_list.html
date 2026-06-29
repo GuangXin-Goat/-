@@ -1,0 +1,27 @@
+﻿{% extends "base.html" %}
+{% block title %}采购订单 - {{ block.super }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4"><i class="bi bi-truck"></i> 采购订单</h1>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr><th>采购单号</th><th>供应商</th><th>状态</th><th>总金额</th><th>采购日期</th><th>预计到货</th><th>创建人</th></tr>
+        </thead>
+        <tbody>
+            {% for po in orders %}
+            <tr>
+                <td>{{ po.po_number }}</td>
+                <td>{{ po.supplier.name }}</td>
+                <td><span class="badge bg-{% if po.status == 'received' %}success{% elif po.status == 'cancelled' %}danger{% elif po.status == 'draft' %}secondary{% else %}warning{% endif %}">{{ po.get_status_display }}</span></td>
+                <td>{{ po.total_amount }}</td>
+                <td>{{ po.order_date|date:"Y-m-d" }}</td>
+                <td>{{ po.expected_date|date:"Y-m-d"|default:"-" }}</td>
+                <td>{{ po.created_by|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center py-4 text-muted">暂无采购订单</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
